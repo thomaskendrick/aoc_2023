@@ -1,0 +1,13 @@
+[package]
+name = "aoc2023"
+version = "0.1.0"
+authors = ["Thomas Kendrick <tom@tkendrick.com>"]
+edition = "2021"
+
+[[bin]]
+name = "day1"
+path = "src/day1.rs"
+
+[dependencies]
+kiss3d = "0.35.0"
+nom = "7.1.3"
