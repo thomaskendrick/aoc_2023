@@ -1,30 +1,72 @@
-fn part1(input: &str) -> i32 {
+const NUMBER_STRINGS: [(&str, u32); 10] = [
+    ("zero", 0),
+    ("one", 1),
+    ("two", 2),
+    ("three", 3),
+    ("four", 4),
+    ("five", 5),
+    ("six", 6),
+    ("seven", 7),
+    ("eight", 8),
+    ("nine", 9),
+];
+fn solver(input: &str, match_words: bool) -> u32 {
     input
         .lines()
-        .map(|l| {
-            let mut first_digit = None;
-            let mut last_digit = None;
+        .map(|ln| {
+            let mut f = None;
+            let mut l = None;
 
-            for char in l.chars() {
-                if char.is_digit(10) && first_digit.is_none() {
-                    first_digit = Some(char);
-                }
-                if char.is_digit(10) {
-                    last_digit = Some(char)
+            for (i, c) in ln.chars().enumerate() {
+                match c.is_ascii_digit() {
+                    true => {
+                        if f.is_none() {
+                            f = Some(c.to_digit(10).unwrap());
+                        }
+                        l = Some(c.to_digit(10).unwrap())
+                    }
+                    false if match_words => {
+                        for (k, v) in NUMBER_STRINGS {
+                            if ln[i..].starts_with(k) {
+                                if f.is_none() {
+                                    f = Some(v);
+                                }
+                                l = Some(v)
+                            }
+                        }
+                    }
+                    false => {}
                 }
             }
-            let s1 = first_digit.unwrap().to_string();
-            let s2 = last_digit.unwrap().to_string();
-            (s1 + &s2).parse::<i32>().unwrap()
+            (f.unwrap() * 10) + l.unwrap()
         })
         .sum()
 }
 
-fn part2(input: &str) -> i32 {
-    return 0;
+fn part1(input: &str) -> u32 {
+    solver(input, false)
+}
+fn part2(input: &str) -> u32 {
+    solver(input, true)
 }
 
 fn main() {
     let input = include_str!("../input/day1.txt");
-    aoc2022::solve_puzzles(input, part1, part2)
+    aoc2023::solve_puzzles(input, part1, part2)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const EXAMPLE_PT1: &str = include_str!("../example/day1_pt1.txt");
+    const EXAMPLE_PT2: &str = include_str!("../example/day1_pt2.txt");
+    #[test]
+    fn part_1_test() {
+        assert_eq!(part1(EXAMPLE_PT1), 142);
+    }
+
+    #[test]
+    fn part_2_test() {
+        assert_eq!(part2(EXAMPLE_PT2), 281);
+    }
 }
