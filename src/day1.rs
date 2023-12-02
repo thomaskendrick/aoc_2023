@@ -18,24 +18,20 @@ fn solver(input: &str, match_words: bool) -> u32 {
             let mut l = None;
 
             for (i, c) in ln.chars().enumerate() {
-                match c.is_ascii_digit() {
-                    true => {
-                        if f.is_none() {
-                            f = Some(c.to_digit(10).unwrap());
-                        }
-                        l = Some(c.to_digit(10).unwrap())
+                if c.is_ascii_digit() {
+                    if f.is_none() {
+                        f = Some(c.to_digit(10).unwrap());
                     }
-                    false if match_words => {
-                        for (k, v) in NUMBER_STRINGS {
-                            if ln[i..].starts_with(k) {
-                                if f.is_none() {
-                                    f = Some(v);
-                                }
-                                l = Some(v)
+                    l = Some(c.to_digit(10).unwrap())
+                } else if match_words {
+                    for (k, v) in NUMBER_STRINGS {
+                        if ln[i..].starts_with(k) {
+                            if f.is_none() {
+                                f = Some(v);
                             }
+                            l = Some(v)
                         }
                     }
-                    false => {}
                 }
             }
             (f.unwrap() * 10) + l.unwrap()
