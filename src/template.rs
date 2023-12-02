@@ -8,7 +8,7 @@ fn part2(input: &str) -> i32 {
 
 fn main() {
     let input = include_str!("../input/day0.txt");
-    aoc2022::solve_puzzles(input, part1, part2)
+    aoc2023::solve_puzzles(input, part1, part2)
 }
 
 #[cfg(test)]
