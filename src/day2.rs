@@ -32,13 +32,13 @@ impl Game {
                 let (count, colour) = cube_str.trim().split_once(' ').unwrap();
                 match colour {
                     "red" => {
-                        cubeset.red += count.parse::<i32>().unwrap();
+                        cubeset.red = count.parse::<i32>().unwrap();
                     }
                     "green" => {
-                        cubeset.green += count.parse::<i32>().unwrap();
+                        cubeset.green = count.parse::<i32>().unwrap();
                     }
                     "blue" => {
-                        cubeset.blue += count.parse::<i32>().unwrap();
+                        cubeset.blue = count.parse::<i32>().unwrap();
                     }
                     _ => {
                         panic!("invalid colour")
