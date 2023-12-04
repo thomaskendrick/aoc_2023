@@ -29,11 +29,10 @@ impl Card {
     }
     fn points(&self) -> u32 {
         let matches = self.matches();
-        if self.matches() < 2 {
-            return matches as u32;
+        if self.matches() == 0 {
+            return 0;
         }
-        let base = 2u32;
-        base.pow(matches as u32 - 1)
+        2u32.pow(matches as u32 - 1)
     }
 }
 
