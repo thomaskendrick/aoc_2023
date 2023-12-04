@@ -10,10 +10,7 @@ struct PartNumber {
 }
 
 fn get_cell((x_pos, y_pos): Point, grid: &'_ Vec<Vec<Cell>>) -> Option<&'_ Cell> {
-    if x_pos < 0 || x_pos > grid[0].len() as i32 - 1 {
-        return None;
-    }
-    if y_pos < 0 || y_pos > grid.len() as i32 - 1 {
+    if x_pos < 0 || x_pos > grid[0].len() as i32 - 1 || y_pos < 0 || y_pos > grid.len() as i32 - 1 {
         return None;
     }
     Some(&grid[y_pos as usize][x_pos as usize])
