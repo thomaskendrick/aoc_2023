@@ -21,18 +21,17 @@ impl Card {
             right_numbers,
         }
     }
-    fn matches(&self) -> usize {
+    fn wins(&self) -> usize {
         self.left_numbers
             .iter()
             .filter(|n| self.right_numbers.contains(n))
             .count()
     }
     fn points(&self) -> u32 {
-        let matches = self.matches();
-        if self.matches() == 0 {
-            return 0;
+        match self.wins() {
+            0 => 0,
+            pow => 2u32.pow(pow as u32 - 1),
         }
-        2u32.pow(matches as u32 - 1)
     }
 }
 
@@ -47,7 +46,7 @@ fn part1(input: &str) -> u32 {
 fn part2(input: &str) -> u32 {
     let mut cards: Vec<(Card, u32)> = input.lines().map(|ln| (Card::from_line(ln), 1)).collect();
     for i in 0..cards.len() {
-        let matches = cards[i].0.matches();
+        let matches = cards[i].0.wins();
         let current_copies = cards[i].1;
         let id = i + 1;
         for below_card_id in id + 1..id + 1 + matches {
