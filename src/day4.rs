@@ -4,21 +4,20 @@ struct Card {
     right_numbers: Vec<i32>,
 }
 
+fn parse_numbers(input: &str) -> Vec<i32> {
+    input
+        .split_whitespace()
+        .map(|str| str.trim().parse().unwrap())
+        .collect()
+}
+
 impl Card {
     fn from_line(input: &str) -> Self {
         let (_, numbers_str) = input.split_once(':').unwrap();
         let (lhs_str, rhs_str) = numbers_str.split_once('|').unwrap();
-        let left_numbers: Vec<i32> = lhs_str
-            .split_whitespace()
-            .map(|str| str.parse().unwrap())
-            .collect();
-        let right_numbers: Vec<i32> = rhs_str
-            .split_whitespace()
-            .map(|str| str.trim().parse().unwrap())
-            .collect();
         Card {
-            left_numbers,
-            right_numbers,
+            left_numbers: parse_numbers(lhs_str),
+            right_numbers: parse_numbers(rhs_str),
         }
     }
     fn wins(&self) -> usize {
@@ -66,11 +65,6 @@ fn main() {
 mod tests {
     use super::*;
     const EXAMPLE: &str = include_str!("../example/day4.txt");
-    #[test]
-    fn pow_test() {
-        let base = 2u32;
-        assert_eq!(base.pow(1), 2);
-    }
     #[test]
     fn part_1_test() {
         assert_eq!(part1(EXAMPLE), 13);
