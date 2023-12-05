@@ -1,13 +1,14 @@
+use rayon::prelude::*;
 use std::{collections::HashMap, ops::Range, ops::RangeInclusive};
 
 #[derive(Debug)]
 struct GardenMap<'a> {
     destination: &'a str,
-    ranges: Vec<(u32, RangeInclusive<u32>)>,
+    ranges: Vec<(usize, RangeInclusive<usize>)>,
 }
 
 impl<'a> GardenMap<'a> {
-    fn get_location(&self, number: u32) -> (&str, u32) {
+    fn get_location(&self, number: usize) -> (&str, usize) {
         for (location, range) in &self.ranges {
             if range.contains(&number) {
                 return (&self.destination, location + (number - range.start()));
@@ -17,10 +18,10 @@ impl<'a> GardenMap<'a> {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<u32>, HashMap<&str, GardenMap>) {
+fn parse_input(input: &str) -> (Vec<usize>, HashMap<&str, GardenMap>) {
     let (seed_str, maps_str) = input.split_once("\n\n").unwrap();
 
-    let seeds: Vec<u32> = seed_str
+    let seeds: Vec<usize> = seed_str
         .strip_prefix("seeds: ")
         .unwrap()
         .split_whitespace()
@@ -40,12 +41,12 @@ fn parse_input(input: &str) -> (Vec<u32>, HashMap<&str, GardenMap>) {
                 .split_once("-to-")
                 .unwrap();
 
-            let ranges: Vec<(u32, RangeInclusive<u32>)> = lines
+            let ranges: Vec<(usize, RangeInclusive<usize>)> = lines
                 .map(|ln| {
                     let mut num_str_splt = ln.split_whitespace();
-                    let source: u32 = num_str_splt.next().unwrap().parse().unwrap();
-                    let start: u32 = num_str_splt.next().unwrap().parse().unwrap();
-                    let length: u32 = num_str_splt.next().unwrap().parse().unwrap();
+                    let source: usize = num_str_splt.next().unwrap().parse().unwrap();
+                    let start: usize = num_str_splt.next().unwrap().parse().unwrap();
+                    let length: usize = num_str_splt.next().unwrap().parse().unwrap();
                     (source, start..=start + length)
                 })
                 .collect();
@@ -62,7 +63,7 @@ fn parse_input(input: &str) -> (Vec<u32>, HashMap<&str, GardenMap>) {
     (seeds, maps)
 }
 
-fn search_for_location(source: &str, number: u32, map_list: &HashMap<&str, GardenMap>) -> u32 {
+fn search_for_location(source: &str, number: usize, map_list: &HashMap<&str, GardenMap>) -> usize {
     let (new_source, new_number) = map_list.get(source).unwrap().get_location(number);
     if new_source == "location" {
         return new_number;
@@ -70,7 +71,7 @@ fn search_for_location(source: &str, number: u32, map_list: &HashMap<&str, Garde
     search_for_location(new_source, new_number, map_list)
 }
 
-fn part1(input: &str) -> u32 {
+fn part1(input: &str) -> usize {
     let (seeds, map_list) = parse_input(input);
     seeds
         .iter()
@@ -79,7 +80,7 @@ fn part1(input: &str) -> u32 {
         .unwrap()
 }
 
-fn part2(input: &str) -> u32 {
+fn part2(input: &str) -> usize {
     let (seeds, map_list) = parse_input(input);
 
     let mut ranges = seeds
@@ -89,7 +90,7 @@ fn part2(input: &str) -> u32 {
 
     ranges.sort_by(|a, b| a.start.cmp(&b.start));
 
-    let mut merged_ranges: Vec<Range<u32>> = Vec::new();
+    let mut merged_ranges: Vec<Range<usize>> = Vec::new();
     for range in ranges {
         if let Some(last) = merged_ranges.last_mut() {
             if last.end >= range.start {
@@ -106,6 +107,7 @@ fn part2(input: &str) -> u32 {
         .into_iter()
         .map(|range| {
             range
+                .into_par_iter()
                 .map(|number| search_for_location("seed", number, &map_list))
                 .min()
                 .unwrap()
