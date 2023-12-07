@@ -32,14 +32,16 @@ impl Game {
         if wildcards {
             let jokers = *counts.get(&1).unwrap_or(&0);
             if jokers > 0 && jokers < 5 {
-                let mut highest = (0u32, 0usize);
+                let mut h_val = 0usize;
+                let mut h_key = 0u32;
                 for (k, v) in counts.iter() {
-                    if **k != 1 && (v > &highest.1 || (k > &&highest.0 && v >= &highest.1)) {
-                        highest = (**k, *v);
+                    if **k != 1 && v > &h_val {
+                        h_val = *v;
+                        h_key = **k;
                     }
                 }
-                let highest_value = counts.get_mut(&highest.0).unwrap();
-                if highest.0 != 1 {
+                let highest_value = counts.get_mut(&h_key).unwrap();
+                if h_key != 1 {
                     *highest_value += jokers;
                     counts.remove(&1u32);
                 }
@@ -88,16 +90,17 @@ impl PartialOrd for Game {
 
 impl Ord for Game {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self.strength != other.strength {
-            return self.strength.cmp(&other.strength);
-        }
-
-        for i in 0..5 {
-            if self.hand[i] != other.hand[i] {
-                return self.hand[i].cmp(&other.hand[i]);
+        match self.strength.cmp(&other.strength) {
+            Ordering::Equal => {
+                for i in 0..5 {
+                    if self.hand[i] != other.hand[i] {
+                        return self.hand[i].cmp(&other.hand[i]);
+                    }
+                }
+                Ordering::Equal
             }
+            x => x,
         }
-        Ordering::Equal
     }
 }
 
@@ -141,5 +144,10 @@ mod tests {
     #[test]
     fn part_2_test() {
         assert_eq!(part2(EXAMPLE), 5905);
+    }
+    #[test]
+    fn part_2_ans_test() {
+        let input = include_str!("../input/day7.txt");
+        assert_eq!(part2(input), 250665248);
     }
 }
