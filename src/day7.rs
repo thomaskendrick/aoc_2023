@@ -7,7 +7,7 @@ use itertools::Itertools;
 struct Game {
     hand: Vec<u32>,
     bid: u32,
-    wildcards: bool,
+    strength: u32,
 }
 
 impl Game {
@@ -28,16 +28,8 @@ impl Game {
                 _ => unimplemented!(),
             })
             .collect();
-
-        Self {
-            hand,
-            bid: bid_str.parse().unwrap(),
-            wildcards,
-        }
-    }
-    fn hand_strength(&self) -> u32 {
-        let mut counts = self.hand.iter().counts();
-        if self.wildcards {
+        let mut counts = hand.iter().counts();
+        if wildcards {
             let jokers = *counts.get(&1).unwrap_or(&0);
             if jokers > 0 && jokers < 5 {
                 let mut highest = (0u32, 0usize);
@@ -53,7 +45,7 @@ impl Game {
                 }
             }
         }
-        match counts.len() {
+        let strength = match counts.len() {
             1 => 7,
             2 => {
                 if counts.iter().any(|(_, v)| *v == 4) {
@@ -72,6 +64,12 @@ impl Game {
             4 => 2,
             5 => 1,
             _ => panic!("Too many cards!"),
+        };
+
+        Self {
+            hand,
+            bid: bid_str.parse().unwrap(),
+            strength,
         }
     }
 }
@@ -90,11 +88,8 @@ impl PartialOrd for Game {
 
 impl Ord for Game {
     fn cmp(&self, other: &Self) -> Ordering {
-        let hs = self.hand_strength();
-        let ohs = other.hand_strength();
-
-        if hs != ohs {
-            return hs.cmp(&ohs);
+        if self.strength != other.strength {
+            return self.strength.cmp(&other.strength);
         }
 
         for i in 0..5 {
@@ -143,93 +138,6 @@ mod tests {
     fn part_1_test() {
         assert_eq!(part1(EXAMPLE), 6440);
     }
-    #[test]
-    fn cmp_test() {
-        let game1 = Game {
-            hand: vec![13, 10, 1, 1, 10],
-            bid: 0,
-            wildcards: true,
-        };
-        let game2 = Game {
-            hand: vec![12, 12, 12, 1, 14],
-            bid: 0,
-            wildcards: true,
-        };
-        assert_eq!(game1.cmp(&game2), Ordering::Greater);
-    }
-    #[test]
-    fn hand_strength_test_wildcards() {
-        let game = Game {
-            hand: vec![12, 2, 13, 1, 1],
-            bid: 0,
-            wildcards: true,
-        };
-        assert_eq!(game.hand_strength(), 4);
-    }
-    #[test]
-    fn hand_strength_test_fiveofakind() {
-        let game = Game {
-            hand: vec![2, 2, 2, 2, 2],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 7);
-    }
-    #[test]
-    fn hand_strength_test_fourofakind() {
-        let game = Game {
-            hand: vec![2, 2, 3, 2, 2],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 6);
-    }
-    #[test]
-    fn hand_strength_test_fullhouse() {
-        let game = Game {
-            hand: vec![4, 2, 4, 2, 2],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 5);
-    }
-    #[test]
-    fn hand_strength_test_threeofakind() {
-        let game = Game {
-            hand: vec![4, 2, 4, 7, 4],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 4);
-    }
-    #[test]
-    fn hand_strength_test_twopair() {
-        let game = Game {
-            hand: vec![2, 2, 4, 7, 4],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 3);
-    }
-    #[test]
-    fn hand_strength_test_pair() {
-        let game = Game {
-            hand: vec![2, 6, 4, 7, 4],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 2);
-    }
-    #[test]
-    fn hand_strength_test_highcard() {
-        let game = Game {
-            hand: vec![2, 6, 7, 1, 4],
-            bid: 0,
-            wildcards: false,
-        };
-        assert_eq!(game.hand_strength(), 1);
-    }
-
     #[test]
     fn part_2_test() {
         assert_eq!(part2(EXAMPLE), 5905);
